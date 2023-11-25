@@ -18,19 +18,22 @@ public abstract class AbsBasePage extends AbsPageObject {
         driver.get(BASE_URL + path);
     }
 
-    String selectorId = "#id_%s";
-
     public WebElement setSelector(String string) {
-        String elementsId = String.format(this.selectorId, string);
+        String selectorId = "#id_%s";
+        String elementsId = String.format(selectorId, string);
         return $(elementsId);
     }
 
-    String locator = "//button[contains(@title,'%s')]";
-
     public WebElement setLocator(String string) {
-        String elementsId = String.format(this.locator, string);
+        String locator = "//button[contains(@title,'%s')]";
+        String elementsId = String.format(locator, string);
         return $x(elementsId);
     }
 
+    public WebElement setGenderLocator(String string){
+        String genderLocator = "//option[contains(@value, '%s')]";
+        String elementsId = String.format(genderLocator, string);
+        return $x(elementsId);
+    }
 
 }

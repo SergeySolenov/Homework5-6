@@ -12,16 +12,15 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-import static data.CityData.ASTRAKHAN;
-import static data.ContryData.RUSSIA;
-import static data.EnglishLevelData.BEGINNER;
 import static data.NamesData.*;
-import static data.SocialNetworkCommunData.TELEGRAM;
-import static data.SocialNetworkCommunData.VK;
-import static data.WorkData.*;
-import static properties.UserData.*;
+import static data.SocialNetworkData.TELEGRAM;
+import static data.SocialNetworkData.VK;
+import static data.WorkData.COMPANY;
+import static data.WorkData.JOB;
 
 public class ProfilePage extends AbsBasePage {
+
+
     public ProfilePage(WebDriver driver) {
         super(driver, "/");
     }
@@ -32,7 +31,7 @@ public class ProfilePage extends AbsBasePage {
     private WebElement countryInfo;
     @FindBy(xpath = "//input[@data-title= 'Город']/following::div[1]")
     private WebElement cityInfo;
-    @FindBy(xpath = "//input[@data-title='Уровень знания английского языка']/ancestor::label/ancestor::div[contains(@class,'select lk-cv-block__input lk-cv-block__input_full js-lk-cv-custom-select')]")
+    @FindBy(xpath = "//input[@data-title='Уровень знания английского языка']/ancestor::div[contains(@class,'select')]")
     private WebElement englishLevelInfo;
     @FindBy(xpath = "//input[contains(@id,'id_ready_to_relocate_1')]")
     private WebElement readyRelocate;
@@ -62,8 +61,8 @@ public class ProfilePage extends AbsBasePage {
     private WebElement listContactTelegram;
     @FindBy(xpath = "//button[contains(text(),'Добавить')]")
     private WebElement buttonAdd;
-    @FindBy(xpath = "//option[contains(@value, 'f')]")
-    private WebElement gender;
+    //    @FindBy(xpath = "//option[contains(@value, 'f')]")
+//    private WebElement gender;
     @FindBy(css = "a[title='Добавить']")
     private WebElement addButtonDevelop;
     @FindBy(css = "#id_experience-0-experience")
@@ -76,28 +75,38 @@ public class ProfilePage extends AbsBasePage {
     private WebElement SaveAndFillLater;
 
 
-    public void addPersonalInformation() {
+    public void addPersonalInformation(String firstName, String lastName, String tfirstName, String tlastName, String nickName) {
+        helper.clearAndEnter(setSelector(FNAME.getName()), firstName);
+        helper.clearAndEnter(setSelector(LNAME.getName()), lastName);
+        helper.clearAndEnter(setSelector(FNAME_LATIN.getName()), tfirstName);
+        helper.clearAndEnter(setSelector(LNAME_LATIN.getName()), tlastName);
+        helper.clearAndEnter(setSelector(BLOG_NAME.getName()), nickName);
+    }
 
-        helper.clearAndEnter(setSelector(FNAME.getName()), FIRST_NAME);
-        helper.clearAndEnter(setSelector(LNAME.getName()), LAST_NAME);
-        helper.clearAndEnter(setSelector(FNAME_LATIN.getName()), TFIRST_NAME);
-        helper.clearAndEnter(setSelector(LNAME_LATIN.getName()), TLAST_NAME);
-        helper.clearAndEnter(setSelector(BLOG_NAME.getName()), NICK_NAME);
-        helper.clearAndEnter(birthday, String.valueOf(DATE));
+    public void addBirdhday(LocalDate date) {
+        helper.clearAndEnter(birthday, String.valueOf(date));
+    }
+
+    public void setCountryInfo(ContryData contryData, CityData cityData) {
         countryInfo.click();
-        setLocator(RUSSIA.getName()).click();
+        setLocator(contryData.getName()).click();
         waiters.waitForCondition(ExpectedConditions.attributeToBe(cityInfo, "disabled", "disabled"));
         waiters.waitForCondition(ExpectedConditions.not(ExpectedConditions.attributeToBe(cityInfo, "disabled", "disabled")));
         cityInfo.click();
-        setLocator(ASTRAKHAN.getName()).click();
+        setLocator(cityData.getName()).click();
+    }
+
+    public void setEnglishLevelInfo(EnglishLevelData englishLevelData) {
         englishLevelInfo.click();
-        waiters.waitElementVisible(setLocator(BEGINNER.getName()));
-        setLocator(BEGINNER.getName()).click();
+        waiters.waitElementVisible(setLocator(englishLevelData.getName()));
+        setLocator(englishLevelData.getName()).click();
+    }
+
+    public void addSocialNetworks(String contactVk, String contactTg) {
         choiceRadioButton();
         clickCheckBox(elFullDay, elFullDayClick);
         clickCheckBox(elflexiblesSchedule, elflexiblesScheduleClick);
         clickCheckBox(elDist, elDistClick);
-
         log.info("Удаляем старые контакты и перезаходим в личный кабинет");
         deleteContacts();
         SaveAndContinue.submit();
@@ -105,19 +114,27 @@ public class ProfilePage extends AbsBasePage {
         log.info("Вводим новые контакты");
         listContact.click();
         listContactVK.click();
-        helper.clearAndEnter(setSelector(VK.getName()), CONTACT_VK);
+        helper.clearAndEnter(setSelector(VK.getName()), contactVk);
         buttonAdd.click();
         listContact.click();
         listContactTelegram.click();
-        helper.clearAndEnter(setSelector(TELEGRAM.getName()), CONTACT_TG);
-
+        helper.clearAndEnter(setSelector(TELEGRAM.getName()), contactTg);
         log.info("Заполняем оставшиеся поля");
+    }
+
+    public void setGender(GenderData gender) {
         setSelector(NamesData.GENDER.getName()).click();
-        gender.click();
-        helper.clearAndEnter(setSelector(COMPANY.getName()), JOB_PLACE);
-        helper.clearAndEnter(setSelector(JOB.getName()), POSITION);
-        deleteDevelopmentExperience();
-        addButtonDevelop.click();
+        setGenderLocator(gender.getName()).click();
+    }
+
+    public void addCompanyAndJob(String company, String job) {
+        helper.clearAndEnter(setSelector(COMPANY.getName()), company);
+        helper.clearAndEnter(setSelector(JOB.getName()), job);
+    }
+
+    //    deleteDevelopmentExperience();
+//        addButtonDevelop.click();
+    public void save() {
         SaveAndFillLater.submit();
         log.info("Нажимаем сохранить");
     }
